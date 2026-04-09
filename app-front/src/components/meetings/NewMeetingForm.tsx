@@ -1,0 +1,100 @@
+"use client";
+
+import { useState, useEffect, FormEvent } from "react";
+import { useRouter } from "next/navigation";
+import { meetingsService } from "@/services/meetings";
+import { studyService } from "@/services/study";
+import { Study, ApiError } from "@/types";
+import { Button } from "@/components/ui/Button";
+
+export function NewMeetingForm() {
+  const router = useRouter();
+  const [date, setDate] = useState(() => new Date().toISOString().slice(0, 16));
+  const [studyId, setStudyId] = useState<string>("");
+  const [studies, setStudies] = useState<Study[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    studyService.getAll().then(setStudies).catch(console.error);
+  }, []);
+
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+    if (!studyId) {
+      setError("Selecione um estudo para o encontro.");
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    try {
+      const meeting = await meetingsService.create({
+        date,
+        studyId: Number(studyId),
+      });
+      router.push(`/meetings/${meeting.id}`);
+    } catch (err) {
+      setError((err as ApiError).message);
+      setLoading(false);
+    }
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-5">
+      <div>
+        <label
+          htmlFor="date"
+          className="mb-1.5 block text-sm font-medium text-gray-700"
+        >
+          Data e hora
+        </label>
+        <input
+          id="date"
+          type="datetime-local"
+          required
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
+          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+        />
+      </div>
+
+      <div>
+        <label
+          htmlFor="study"
+          className="mb-1.5 block text-sm font-medium text-gray-700"
+        >
+          Estudo <span className="text-red-500">*</span>
+        </label>
+        <select
+          id="study"
+          required
+          value={studyId}
+          onChange={(e) => setStudyId(e.target.value)}
+          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+        >
+          <option value="">Selecione um estudo</option>
+          {studies.map((s) => (
+            <option key={s.id} value={s.id}>
+              {s.title} — {s.verse}
+            </option>
+          ))}
+        </select>
+        {studies.length === 0 && (
+          <p className="mt-1 text-xs text-gray-400">
+            Nenhum estudo cadastrado ainda.
+          </p>
+        )}
+      </div>
+
+      {error && (
+        <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">
+          {error}
+        </p>
+      )}
+
+      <Button type="submit" loading={loading} fullWidth size="lg">
+        Criar reunião
+      </Button>
+    </form>
+  );
+}

@@ -1,0 +1,108 @@
+"use client";
+
+import { useState } from "react";
+import { DrawResult } from "@/types";
+import { Card } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
+import { DrawResultCard } from "@/components/meetings/DrawResult";
+
+interface QuestionItemProps {
+  text: string;
+  order: number;
+  onDraw: () => Promise<void>;
+  drawResult: DrawResult | null;
+  isActive: boolean;
+  drawing: boolean;
+  onClearDraw: () => void;
+}
+
+export function QuestionItem({
+  text,
+  order,
+  onDraw,
+  drawResult,
+  isActive,
+  drawing,
+  onClearDraw,
+}: QuestionItemProps) {
+  const [answered, setAnswered] = useState(false);
+
+  function handleAnswer() {
+    setAnswered(true);
+    onClearDraw();
+  }
+
+  return (
+    <Card
+      className={
+        isActive && drawResult
+          ? "border-blue-300 ring-1 ring-blue-300"
+          : answered
+          ? "opacity-60"
+          : ""
+      }
+    >
+      <div className="flex items-start gap-3">
+        <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-bold text-blue-700">
+          {order}
+        </span>
+        <p className="flex-1 pt-0.5 text-sm leading-relaxed text-gray-800">
+          {text}
+        </p>
+      </div>
+
+      {answered ? (
+        <div className="mt-3 flex items-center gap-1.5 rounded-lg bg-green-50 px-3 py-2">
+          <svg
+            className="h-4 w-4 text-green-600"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M5 13l4 4L19 7"
+            />
+          </svg>
+          <span className="text-xs font-medium text-green-700">Respondida</span>
+        </div>
+      ) : isActive && drawResult ? (
+        <div className="mt-4">
+          <DrawResultCard
+            result={drawResult}
+            onAnswer={handleAnswer}
+            onRedraw={onDraw}
+            loading={drawing}
+          />
+        </div>
+      ) : (
+        <div className="mt-3">
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={onDraw}
+            loading={drawing && isActive}
+            disabled={drawing && !isActive}
+          >
+            <svg
+              className="h-4 w-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+              />
+            </svg>
+            Sortear pessoa
+          </Button>
+        </div>
+      )}
+    </Card>
+  );
+}
