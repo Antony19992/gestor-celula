@@ -8,6 +8,9 @@ using CelulaApp.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 
+// Permite DateTime com Kind=Unspecified no PostgreSQL (evita erro de timestamptz)
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Controllers
