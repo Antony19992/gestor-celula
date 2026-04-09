@@ -1,5 +1,6 @@
 using CelulaApp.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using System.Text.Json;
 
@@ -21,14 +22,20 @@ public class AppDbContext : DbContext
             v => JsonSerializer.Deserialize<List<string>>(v, (JsonSerializerOptions?)null) ?? new List<string>()
         );
 
+        var listComparer = new ValueComparer<List<string>>(
+            (c1, c2) => c1!.SequenceEqual(c2!),
+            c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
+            c => c.ToList()
+        );
+
         modelBuilder.Entity<Study>(entity =>
         {
             entity.Property(e => e.Questions)
-                .HasConversion(listConverter)
+                .HasConversion(listConverter, listComparer)
                 .HasColumnType("text");
 
             entity.Property(e => e.PrayerTopics)
-                .HasConversion(listConverter)
+                .HasConversion(listConverter, listComparer)
                 .HasColumnType("text");
         });
 

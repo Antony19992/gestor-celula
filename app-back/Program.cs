@@ -1,9 +1,12 @@
+using System.Net;
+using System.Net.Sockets;
 using CelulaApp.Data;
 using CelulaApp.Repositories;
 using CelulaApp.Repositories.Interfaces;
 using CelulaApp.Services;
 using CelulaApp.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,9 +29,15 @@ builder.Services.AddCors(options =>
     });
 });
 
-// Database (PostgreSQL)
+// Database (PostgreSQL) — resolve para IPv4 para evitar falha em ambientes sem IPv6 (ex: Render)
+var rawCs = builder.Configuration.GetConnectionString("DefaultConnection")!;
+var csBuilder = new NpgsqlConnectionStringBuilder(rawCs);
+var ipv4 = Dns.GetHostAddresses(csBuilder.Host!)
+    .FirstOrDefault(a => a.AddressFamily == AddressFamily.InterNetwork);
+if (ipv4 is not null) csBuilder.Host = ipv4.ToString();
+
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(csBuilder.ConnectionString));
 
 // Repositories
 builder.Services.AddScoped<IStudyRepository, StudyRepository>();
