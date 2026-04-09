@@ -26,9 +26,9 @@ builder.Services.AddCors(options =>
     });
 });
 
-// Database (SQLite)
+// Database (PostgreSQL)
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Repositories
 builder.Services.AddScoped<IStudyRepository, StudyRepository>();

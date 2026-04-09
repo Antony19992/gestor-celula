@@ -25,11 +25,11 @@ public class AppDbContext : DbContext
         {
             entity.Property(e => e.Questions)
                 .HasConversion(listConverter)
-                .HasColumnType("TEXT");
+                .HasColumnType("text");
 
             entity.Property(e => e.PrayerTopics)
                 .HasConversion(listConverter)
-                .HasColumnType("TEXT");
+                .HasColumnType("text");
         });
 
         modelBuilder.Entity<Meeting>(entity =>
