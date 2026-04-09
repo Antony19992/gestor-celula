@@ -53,11 +53,11 @@ builder.Services.AddScoped<IDrawService, DrawService>();
 
 var app = builder.Build();
 
-// Criar banco automaticamente
+// Aplicar migrations automaticamente ao iniciar
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    db.Database.EnsureCreated();
+    db.Database.Migrate();
 }
 
 // Swagger sempre ativo (MVP)
