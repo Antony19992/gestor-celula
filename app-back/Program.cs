@@ -7,21 +7,26 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Controllers
 builder.Services.AddControllers();
+
+// Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// CORS (liberado para MVP)
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
         policy
-            .WithOrigins("http://localhost:3000")
+            .AllowAnyOrigin()
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
 });
 
+// Database (SQLite)
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -39,20 +44,23 @@ builder.Services.AddScoped<IDrawService, DrawService>();
 
 var app = builder.Build();
 
-// Cria o banco e aplica o schema automaticamente na inicialização
+// Criar banco automaticamente
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     db.Database.EnsureCreated();
 }
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+// Swagger sempre ativo (MVP)
+app.UseSwagger();
+app.UseSwaggerUI();
 
+// Middlewares
 app.UseCors();
 app.UseAuthorization();
+
+// Endpoints
 app.MapControllers();
+
+// Run (Render usa porta dinâmica automaticamente via Docker)
 app.Run();
