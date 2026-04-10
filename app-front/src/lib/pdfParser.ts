@@ -26,7 +26,7 @@ async function extractLinesFromPDF(file: File): Promise<string[]> {
       const width = item.width ?? 0;
 
       let bucketY: number | undefined;
-      for (const existingY of lineMap.keys()) {
+      for (const existingY of Array.from(lineMap.keys())) {
         if (Math.abs(existingY - y) <= Y_TOLERANCE) {
           bucketY = existingY;
           break;
