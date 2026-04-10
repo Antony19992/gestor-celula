@@ -1,0 +1,56 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Study {
+  id                    Int       @id @default(autoincrement()) @map("Id")
+  title                 String    @map("Title")
+  verse                 String    @map("Verse")
+  introduction          String    @map("Introduction")
+  explanation           String    @map("Explanation")
+  questions             String    @map("Questions")
+  applicationIndividual String    @map("ApplicationIndividual")
+  applicationGroup      String    @map("ApplicationGroup")
+  prayerTopics          String    @map("PrayerTopics")
+  conclusion            String    @map("Conclusion")
+  meetings              Meeting[]
+
+  @@map("Studies")
+}
+
+model Member {
+  id             Int             @id @default(autoincrement()) @map("Id")
+  name           String          @map("Name")
+  participations Participation[]
+
+  @@map("Members")
+}
+
+model Meeting {
+  id                Int             @id @default(autoincrement()) @map("Id")
+  date              DateTime        @map("Date")
+  studyId           Int             @map("StudyId")
+  study             Study           @relation(fields: [studyId], references: [id], onDelete: Cascade)
+  lastDrawnMemberId Int?            @map("LastDrawnMemberId")
+  participations    Participation[]
+
+  @@map("Meetings")
+}
+
+model Participation {
+  memberId      Int     @map("MemberId")
+  meetingId     Int     @map("MeetingId")
+  timesSelected Int     @default(0) @map("TimesSelected")
+  timesSpoken   Int     @default(0) @map("TimesSpoken")
+  member        Member  @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  meeting       Meeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+
+  @@id([memberId, meetingId])
+  @@map("Participations")
+}
