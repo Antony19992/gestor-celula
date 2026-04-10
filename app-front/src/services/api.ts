@@ -2,7 +2,7 @@ import axios, { AxiosError } from "axios";
 import { ApiError } from "@/types";
 
 const BASE_URL =
-  (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000") + "/api";
+  (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001") + "/api";
 
 export const api = axios.create({
   baseURL: BASE_URL,
