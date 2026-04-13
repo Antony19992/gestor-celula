@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 
-// Impede pré-renderização em build time
 export const dynamic = "force-dynamic";
 
 interface Hino {
@@ -8,22 +7,57 @@ interface Hino {
   titulo: string;
 }
 
-// Cache em memória com TTL de 1 hora
 let cache: { data: Hino[]; expiresAt: number } | null = null;
 const CACHE_TTL = 60 * 60 * 1000;
 
-// Remove tags HTML e decodifica entidades básicas
-function stripHtml(text: string): string {
+function decodeEntities(text: string): string {
   return text
-    .replace(/<[^>]+>/g, "")
     .replace(/&amp;/g, "&")
     .replace(/&lt;/g, "<")
     .replace(/&gt;/g, ">")
     .replace(/&quot;/g, '"')
     .replace(/&apos;/g, "'")
-    .replace(/&#(\d+);/g, (_, c) => String.fromCharCode(Number(c)))
     .replace(/&nbsp;/g, " ")
-    .trim();
+    .replace(/&#(\d+);/g, (_, c) => String.fromCharCode(Number(c)));
+}
+
+function parseHinos(html: string): Hino[] {
+  // 1. Remove scripts e styles
+  let text = html
+    .replace(/<script[\s\S]*?<\/script>/gi, "")
+    .replace(/<style[\s\S]*?<\/style>/gi, "");
+
+  // 2. Troca tags por quebra de linha — o texto das âncoras fica preservado
+  text = text.replace(/<[^>]+>/g, "\n");
+
+  // 3. Decodifica entidades
+  text = decodeEntities(text);
+
+  const hinos: Hino[] = [];
+  const seen = new Set<number>();
+
+  for (const raw of text.split(/\n+/)) {
+    const line = raw.trim();
+    if (!line) continue;
+
+    // Formato "110-A · Crer e Observar" ou "110 · Crer e Observar"
+    const m1 = line.match(/^(\d+)(?:-[A-Za-z]+)?\s*[·•]\s*(.+)$/);
+    // Formato "110 - Crer e Observar"
+    const m2 = line.match(/^(\d+)\s*[-–]\s*(.+)$/);
+
+    const m = m1 ?? m2;
+    if (!m) continue;
+
+    const numero = parseInt(m[1], 10);
+    const titulo = m[2].trim();
+
+    if (numero > 0 && numero <= 2000 && titulo.length > 1 && !seen.has(numero)) {
+      seen.add(numero);
+      hinos.push({ numero, titulo });
+    }
+  }
+
+  return hinos.sort((a, b) => a.numero - b.numero);
 }
 
 export async function GET() {
@@ -37,46 +71,19 @@ export async function GET() {
     });
 
     if (!res.ok) {
-      return NextResponse.json(
-        { error: "Erro ao buscar índice de hinos." },
-        { status: 502 }
-      );
+      return NextResponse.json({ error: "Erro ao buscar índice." }, { status: 502 });
     }
 
     const html = await res.text();
-    const hinos: Hino[] = [];
-    const seen = new Set<number>();
-
-    // Extrai todo texto que casa com "número - título"
-    // Funciona tanto em texto puro quanto dentro de tags <a>, <td>, <li>, etc.
-    const pattern = /(\d{1,3})\s*[-–]\s*([A-Za-zÀ-ÿ][^<\n\r]{2,80})/g;
-    let match: RegExpExecArray | null;
-
-    while ((match = pattern.exec(html)) !== null) {
-      const numero = parseInt(match[1], 10);
-      const titulo = stripHtml(match[2]).trim();
-
-      if (!seen.has(numero) && titulo.length > 1) {
-        seen.add(numero);
-        hinos.push({ numero, titulo });
-      }
-    }
+    const hinos = parseHinos(html);
 
     if (hinos.length === 0) {
-      return NextResponse.json(
-        { error: "Nenhum hino encontrado." },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Nenhum hino encontrado." }, { status: 404 });
     }
 
-    hinos.sort((a, b) => a.numero - b.numero);
     cache = { data: hinos, expiresAt: Date.now() + CACHE_TTL };
-
     return NextResponse.json(hinos);
   } catch {
-    return NextResponse.json(
-      { error: "Erro interno ao processar hinos." },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Erro interno." }, { status: 500 });
   }
 }
