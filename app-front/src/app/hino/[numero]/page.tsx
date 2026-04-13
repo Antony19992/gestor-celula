@@ -6,9 +6,14 @@ import Link from "next/link";
 import { Card } from "@/components/ui/Card";
 import { PageSpinner } from "@/components/ui/Spinner";
 
+interface Bloco {
+  tipo: "estrofe" | "coro";
+  linhas: string[];
+}
+
 interface HinoData {
   titulo: string;
-  letra: string;
+  blocos: Bloco[];
 }
 
 export default function HinoPage() {
@@ -55,9 +60,20 @@ export default function HinoPage() {
       {hino && !loading && (
         <Card>
           <h2 className="text-lg font-bold text-gray-900">{hino.titulo}</h2>
-          <pre className="mt-4 whitespace-pre-wrap font-sans text-sm leading-relaxed text-gray-700">
-            {hino.letra}
-          </pre>
+          <div className="mt-4 space-y-4 text-sm leading-relaxed">
+            {hino.blocos.map((bloco, i) => (
+              <div key={i}>
+                {bloco.linhas.map((linha, j) => (
+                  <p
+                    key={j}
+                    className={bloco.tipo === "coro" ? "font-bold text-gray-900" : "text-gray-700"}
+                  >
+                    {linha}
+                  </p>
+                ))}
+              </div>
+            ))}
+          </div>
         </Card>
       )}
     </div>
