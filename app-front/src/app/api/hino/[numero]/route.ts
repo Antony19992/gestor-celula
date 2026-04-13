@@ -17,15 +17,43 @@ function extractTag(xml: string, tag: string): string {
   return match ? decodeEntities(match[1].trim()) : "";
 }
 
-// Extrai a letra do XML — tenta <line> primeiro, fallback para texto limpo
+// Extrai a letra do XML — suporta <estrofe>/<verso> (Novo Cântico), <line>, ou fallback texto
 function extractLetra(xml: string): string {
-  const lines = [...xml.matchAll(/<line[^>]*>([\s\S]*?)<\/line>/gi)];
+  // Formato Novo Cântico: <estrofe> com <verso> e opcional <coro>
+  const estrofes = [...xml.matchAll(/<estrofe[^>]*>([\s\S]*?)<\/estrofe>/gi)];
+  if (estrofes.length > 0) {
+    return estrofes
+      .map((estrofe) => {
+        const blocos: string[] = [];
 
+        // Versos fora do coro
+        const semCoro = estrofe[1].replace(/<coro[^>]*>[\s\S]*?<\/coro>/gi, "");
+        const versosFora = [...semCoro.matchAll(/<verso[^>]*>([\s\S]*?)<\/verso>/gi)];
+        if (versosFora.length > 0) {
+          blocos.push(versosFora.map((v) => decodeEntities(v[1].trim())).join("\n"));
+        }
+
+        // Coro (indentado)
+        const coros = [...estrofe[1].matchAll(/<coro[^>]*>([\s\S]*?)<\/coro>/gi)];
+        for (const coro of coros) {
+          const versosCoro = [...coro[1].matchAll(/<verso[^>]*>([\s\S]*?)<\/verso>/gi)];
+          if (versosCoro.length > 0) {
+            blocos.push(versosCoro.map((v) => "    " + decodeEntities(v[1].trim())).join("\n"));
+          }
+        }
+
+        return blocos.join("\n");
+      })
+      .join("\n\n");
+  }
+
+  // Formato alternativo: <line>
+  const lines = [...xml.matchAll(/<line[^>]*>([\s\S]*?)<\/line>/gi)];
   if (lines.length > 0) {
     return lines.map((m) => decodeEntities(m[1].trim())).join("\n");
   }
 
-  // Fallback: remove metadados e retorna o texto remanescente (sem título/número)
+  // Fallback: remove metadados e retorna o texto remanescente
   const semMeta = xml
     .replace(/<title[^>]*>[\s\S]*?<\/title>/gi, "")
     .replace(/<titulo[^>]*>[\s\S]*?<\/titulo>/gi, "")
@@ -50,7 +78,9 @@ export async function GET(
     return NextResponse.json({ error: "Número inválido." }, { status: 400 });
   }
 
-  const url = `https://novocantico.com.br/hino/${numero}/${numero}.xml`;
+  // O site usa números com zero à esquerda (1 → 001, 10 → 010)
+  const padded = numero.padStart(3, "0");
+  const url = `https://novocantico.com.br/hino/${padded}/${padded}.xml`;
 
   try {
     const res = await fetch(url, { next: { revalidate: 86400 } }); // cache 24h
