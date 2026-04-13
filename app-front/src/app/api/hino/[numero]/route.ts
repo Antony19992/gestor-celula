@@ -25,13 +25,17 @@ function extractLetra(xml: string): string {
     return lines.map((m) => decodeEntities(m[1].trim())).join("\n");
   }
 
-  // Fallback: remove tags e retorna o texto remanescente (sem o título)
-  const semTitulo = xml.replace(/<title[^>]*>[\s\S]*?<\/title>/gi, "");
-  return semTitulo
+  // Fallback: remove metadados e retorna o texto remanescente (sem título/número)
+  const semMeta = xml
+    .replace(/<title[^>]*>[\s\S]*?<\/title>/gi, "")
+    .replace(/<titulo[^>]*>[\s\S]*?<\/titulo>/gi, "")
+    .replace(/<number[^>]*>[\s\S]*?<\/number>/gi, "")
+    .replace(/<numero[^>]*>[\s\S]*?<\/numero>/gi, "");
+  return semMeta
     .replace(/<[^>]+>/g, "\n")
     .split("\n")
     .map((l) => l.trim())
-    .filter((l) => l.length > 0)
+    .filter((l) => l.length > 0 && !/^\d+$/.test(l))
     .join("\n");
 }
 

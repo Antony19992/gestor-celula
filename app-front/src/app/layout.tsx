@@ -53,6 +53,12 @@ export default function RootLayout({
                 >
                   Membros
                 </Link>
+                <Link
+                  href="/hinos"
+                  className="rounded-lg px-3 py-1.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900"
+                >
+                  Hinos
+                </Link>
               </nav>
             </div>
           </header>
@@ -88,6 +94,14 @@ export default function RootLayout({
                     d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
                 <span className="text-[11px] font-medium">Membros</span>
+              </Link>
+
+              <Link href="/hinos" className="flex flex-1 flex-col items-center gap-0.5 py-3 text-gray-500 transition-colors hover:text-blue-600 active:text-blue-600">
+                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8}
+                    d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+                </svg>
+                <span className="text-[11px] font-medium">Hinos</span>
               </Link>
 
             </div>
