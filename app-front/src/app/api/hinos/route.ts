@@ -25,8 +25,8 @@ function parseHinos(html: string): Hino[] {
   const hinos: Hino[] = [];
   const seen = new Set<number>();
 
-  // Links do tipo <a href="texto/?id=1">1 - Doxologia</a>
-  const links = [...html.matchAll(/<a[^>]*href="[^"]*texto\/\?id=(\d+)"[^>]*>([\s\S]*?)<\/a>/gi)];
+  // Links do tipo <a href="./texto?id=1">1 - Antífona</a>
+  const links = [...html.matchAll(/<a[^>]*href="[^"]*texto\?id=(\d+)"[^>]*>([\s\S]*?)<\/a>/gi)];
 
   for (const m of links) {
     const numero = parseInt(m[1], 10);
