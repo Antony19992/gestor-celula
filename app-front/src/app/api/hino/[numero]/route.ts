@@ -5,7 +5,6 @@ export interface Bloco {
   linhas: string[];
 }
 
-// Decodifica entidades XML comuns
 function decodeEntities(text: string): string {
   return text
     .replace(/&amp;/g, "&")
@@ -16,71 +15,53 @@ function decodeEntities(text: string): string {
     .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(Number(code)));
 }
 
-// Extrai o conteúdo de uma tag XML específica
-function extractTag(xml: string, tag: string): string {
-  const match = xml.match(new RegExp(`<${tag}[^>]*>([\\s\\S]*?)<\\/${tag}>`, "i"));
-  return match ? decodeEntities(match[1].trim()) : "";
-}
+function parseHino(html: string): { titulo: string; blocos: Bloco[] } {
+  // Título: <h1 id="titulo-cantor">375 - Segurança</h1>
+  const titleMatch = html.match(/<h1[^>]*id="titulo-cantor"[^>]*>([\s\S]*?)<\/h1>/i);
+  const titleRaw = titleMatch ? decodeEntities(titleMatch[1].trim()) : "";
+  const titulo = titleRaw.replace(/^\d+\s*[-–]\s*/, "").trim();
 
-// Extrai versos de dentro de um trecho XML
-function extractVersos(xml: string): string[] {
-  return [...xml.matchAll(/<verso[^>]*>([\s\S]*?)<\/verso>/gi)].map((v) =>
-    decodeEntities(v[1].trim())
-  );
-}
+  // Conteúdo: <div id="conteudoCantor">
+  const contentMatch = html.match(/<div[^>]*id="conteudoCantor"[^>]*>([\s\S]*?)<\/div>/i);
+  if (!contentMatch || !titulo) return { titulo, blocos: [] };
 
-// Extrai blocos tipados do XML
-function extractBlocos(xml: string): Bloco[] {
+  const paragraphs = [...contentMatch[1].matchAll(/<p[^>]*class="lead"[^>]*>([\s\S]*?)<\/p>/gi)];
+
   const blocos: Bloco[] = [];
+  let currentTipo: "estrofe" | "coro" | null = null;
+  let currentLinhas: string[] = [];
 
-  // Formato Novo Cântico: <estrofe> com <verso> e opcional <coro>
-  const estrofes = [...xml.matchAll(/<estrofe[^>]*>([\s\S]*?)<\/estrofe>/gi)];
-  if (estrofes.length > 0) {
-    for (const estrofe of estrofes) {
-      // Versos da estrofe (fora do coro)
-      const semCoro = estrofe[1].replace(/<coro[^>]*>[\s\S]*?<\/coro>/gi, "");
-      const versosFora = extractVersos(semCoro);
-      if (versosFora.length > 0) {
-        blocos.push({ tipo: "estrofe", linhas: versosFora });
-      }
-
-      // Coro(s) dentro da estrofe
-      const coros = [...estrofe[1].matchAll(/<coro[^>]*>([\s\S]*?)<\/coro>/gi)];
-      for (const coro of coros) {
-        const versosCoro = extractVersos(coro[1]);
-        if (versosCoro.length > 0) {
-          blocos.push({ tipo: "coro", linhas: versosCoro });
-        }
-      }
+  function flush() {
+    if (currentLinhas.length > 0 && currentTipo) {
+      blocos.push({ tipo: currentTipo, linhas: [...currentLinhas] });
     }
-    return blocos;
+    currentLinhas = [];
+    currentTipo = null;
   }
 
-  // Formato alternativo: <line>
-  const lines = [...xml.matchAll(/<line[^>]*>([\s\S]*?)<\/line>/gi)].map((m) =>
-    decodeEntities(m[1].trim())
-  );
-  if (lines.length > 0) {
-    blocos.push({ tipo: "estrofe", linhas: lines });
-    return blocos;
-  }
+  for (const p of paragraphs) {
+    const inner = p[1];
+    const text = inner.replace(/<[^>]+>/g, "").trim();
+    if (!text) { flush(); continue; }
 
-  // Fallback: texto limpo sem metadados
-  const semMeta = xml
-    .replace(/<title[^>]*>[\s\S]*?<\/title>/gi, "")
-    .replace(/<titulo[^>]*>[\s\S]*?<\/titulo>/gi, "")
-    .replace(/<number[^>]*>[\s\S]*?<\/number>/gi, "")
-    .replace(/<numero[^>]*>[\s\S]*?<\/numero>/gi, "");
-  const linhasFallback = semMeta
-    .replace(/<[^>]+>/g, "\n")
-    .split("\n")
-    .map((l) => l.trim())
-    .filter((l) => l.length > 0 && !/^\d+$/.test(l));
-  if (linhasFallback.length > 0) {
-    blocos.push({ tipo: "estrofe", linhas: linhasFallback });
-  }
+    const isCoro = /<b>/i.test(inner);
+    const tipo: "estrofe" | "coro" = isCoro ? "coro" : "estrofe";
 
-  return blocos;
+    // Remove prefixo * do coro e numeração N. da estrofe
+    const line = decodeEntities(text)
+      .replace(/^\*\s*/, "")
+      .replace(/^\d+\.\s*/, "")
+      .trim();
+
+    if (!line) continue;
+
+    if (currentTipo !== tipo) flush();
+    currentTipo = tipo;
+    currentLinhas.push(line);
+  }
+  flush();
+
+  return { titulo, blocos };
 }
 
 export async function GET(
@@ -93,26 +74,23 @@ export async function GET(
     return NextResponse.json({ error: "Número inválido." }, { status: 400 });
   }
 
-  // O site usa números com zero à esquerda (1 → 001, 10 → 010)
-  const padded = numero.padStart(3, "0");
-  const url = `https://novocantico.com.br/hino/${padded}/${padded}.xml`;
+  const url = `https://cristaonarede.com.br/hinarios/cantor/texto/?id=${numero}`;
 
   try {
-    const res = await fetch(url, { next: { revalidate: 86400 } });
+    const res = await fetch(url, {
+      headers: { "User-Agent": "Mozilla/5.0" },
+      next: { revalidate: 86400 },
+    });
 
     if (!res.ok) {
       return NextResponse.json({ error: "Hino não encontrado." }, { status: 404 });
     }
 
-    const xml = await res.text();
-    const titulo = extractTag(xml, "title") || extractTag(xml, "titulo");
-    const blocos = extractBlocos(xml);
+    const html = await res.text();
+    const { titulo, blocos } = parseHino(html);
 
-    if (!titulo && blocos.length === 0) {
-      return NextResponse.json(
-        { error: "Não foi possível extrair o hino." },
-        { status: 404 }
-      );
+    if (!titulo) {
+      return NextResponse.json({ error: "Hino não encontrado." }, { status: 404 });
     }
 
     return NextResponse.json({ titulo, blocos });

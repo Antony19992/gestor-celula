@@ -22,38 +22,42 @@ function decodeEntities(text: string): string {
 }
 
 function parseHinos(html: string): Hino[] {
-  // 1. Remove scripts e styles
-  let text = html
-    .replace(/<script[\s\S]*?<\/script>/gi, "")
-    .replace(/<style[\s\S]*?<\/style>/gi, "");
-
-  // 2. Troca tags por quebra de linha — o texto das âncoras fica preservado
-  text = text.replace(/<[^>]+>/g, "\n");
-
-  // 3. Decodifica entidades
-  text = decodeEntities(text);
-
   const hinos: Hino[] = [];
   const seen = new Set<number>();
 
-  for (const raw of text.split(/\n+/)) {
-    const line = raw.trim();
-    if (!line) continue;
+  // Links do tipo <a href="texto/?id=1">1 - Doxologia</a>
+  const links = [...html.matchAll(/<a[^>]*href="[^"]*texto\/\?id=(\d+)"[^>]*>([\s\S]*?)<\/a>/gi)];
 
-    // Formato "110-A · Crer e Observar" ou "110 · Crer e Observar"
-    const m1 = line.match(/^(\d+)(?:-[A-Za-z]+)?\s*[·•]\s*(.+)$/);
-    // Formato "110 - Crer e Observar"
-    const m2 = line.match(/^(\d+)\s*[-–]\s*(.+)$/);
-
-    const m = m1 ?? m2;
-    if (!m) continue;
-
+  for (const m of links) {
     const numero = parseInt(m[1], 10);
-    const titulo = m[2].trim();
+    const titulo = decodeEntities(m[2].replace(/<[^>]+>/g, "").trim())
+      .replace(/^\d+\s*[-–]\s*/, "")
+      .trim();
 
-    if (numero > 0 && numero <= 2000 && titulo.length > 1 && !seen.has(numero)) {
+    if (numero > 0 && titulo.length > 1 && !seen.has(numero)) {
       seen.add(numero);
       hinos.push({ numero, titulo });
+    }
+  }
+
+  // Fallback: texto puro no formato "N - Título"
+  if (hinos.length === 0) {
+    const text = decodeEntities(
+      html
+        .replace(/<script[\s\S]*?<\/script>/gi, "")
+        .replace(/<style[\s\S]*?<\/style>/gi, "")
+        .replace(/<[^>]+>/g, "\n")
+    );
+    for (const raw of text.split(/\n+/)) {
+      const line = raw.trim();
+      const m = line.match(/^(\d+)\s*[-–]\s*(.+)$/);
+      if (!m) continue;
+      const numero = parseInt(m[1], 10);
+      const titulo = m[2].trim();
+      if (numero > 0 && numero <= 2000 && titulo.length > 1 && !seen.has(numero)) {
+        seen.add(numero);
+        hinos.push({ numero, titulo });
+      }
     }
   }
 
@@ -66,7 +70,7 @@ export async function GET() {
   }
 
   try {
-    const res = await fetch("https://novocantico.com.br/indice/assunto/", {
+    const res = await fetch("https://cristaonarede.com.br/hinarios/cantor", {
       headers: { "User-Agent": "Mozilla/5.0" },
     });
 
