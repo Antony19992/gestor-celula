@@ -4,8 +4,8 @@ import { FontSize } from "@/hooks/useFontSize";
 
 const textClass: Record<FontSize, string> = {
   sm: "text-sm",
-  base: "text-base",
-  lg: "text-lg",
+  base: "text-lg",
+  lg: "text-2xl",
 };
 
 interface StudyViewerProps {

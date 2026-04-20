@@ -74,7 +74,7 @@ export default function HinoPage() {
       {hino && !loading && (
         <Card>
           <h2 className="text-lg font-bold text-gray-900">{hino.titulo}</h2>
-          <div className={`mt-4 space-y-4 leading-relaxed ${fontSize === "sm" ? "text-sm" : fontSize === "base" ? "text-base" : "text-lg"}`}>
+          <div className={`mt-4 space-y-4 leading-relaxed ${fontSize === "sm" ? "text-sm" : fontSize === "base" ? "text-lg" : "text-2xl"}`}>
             {hino.blocos.map((bloco, i) => (
               <div key={i}>
                 {bloco.linhas.map((linha, j) => (
