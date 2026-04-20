@@ -156,6 +156,7 @@ export default function MeetingPage({ params }: PageProps) {
                     isActive={activeQuestionIdx === idx}
                     drawing={drawing}
                     onClearDraw={handleClearDraw}
+                    fontSize={fontSize}
                   />
                 ))
               )}

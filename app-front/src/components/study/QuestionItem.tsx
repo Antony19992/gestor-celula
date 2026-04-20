@@ -5,6 +5,13 @@ import { DrawResult } from "@/types";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { DrawResultCard } from "@/components/meetings/DrawResult";
+import { FontSize } from "@/hooks/useFontSize";
+
+const textClass: Record<FontSize, string> = {
+  sm: "text-sm",
+  base: "text-lg",
+  lg: "text-2xl",
+};
 
 interface QuestionItemProps {
   text: string;
@@ -14,6 +21,7 @@ interface QuestionItemProps {
   isActive: boolean;
   drawing: boolean;
   onClearDraw: () => void;
+  fontSize?: FontSize;
 }
 
 export function QuestionItem({
@@ -24,6 +32,7 @@ export function QuestionItem({
   isActive,
   drawing,
   onClearDraw,
+  fontSize = "sm",
 }: QuestionItemProps) {
   const [answered, setAnswered] = useState(false);
 
@@ -46,7 +55,7 @@ export function QuestionItem({
         <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-bold text-blue-700">
           {order}
         </span>
-        <p className="flex-1 pt-0.5 text-sm leading-relaxed text-gray-800">
+        <p className={`flex-1 pt-0.5 leading-relaxed text-gray-800 ${textClass[fontSize]}`}>
           {text}
         </p>
       </div>
