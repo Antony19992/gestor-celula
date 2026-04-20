@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { PageSpinner } from "@/components/ui/Spinner";
 import { localCache } from "@/lib/local-cache";
+import { useFontSize } from "@/hooks/useFontSize";
 
 interface Hino {
   numero: number;
@@ -14,6 +15,7 @@ const CACHE_KEY = "hinos";
 const CACHE_TTL = 60 * 60 * 1000; // 60 minutos (igual ao TTL do servidor)
 
 export default function HinosPage() {
+  const { fontSize, cycleFontSize } = useFontSize();
   const [hinos, setHinos] = useState<Hino[]>([]);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
@@ -59,13 +61,27 @@ export default function HinosPage() {
 
   return (
     <div className="space-y-4">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Hinos</h1>
-        {!loading && !erro && (
-          <p className="mt-0.5 text-sm text-gray-500">
-            {hinos.length} hinos no hinário
-          </p>
-        )}
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Hinos</h1>
+          {!loading && !erro && (
+            <p className="mt-0.5 text-sm text-gray-500">
+              {hinos.length} hinos no hinário
+            </p>
+          )}
+        </div>
+        <button
+          onClick={cycleFontSize}
+          title="Tamanho do texto"
+          className="flex-shrink-0 rounded-lg border border-gray-200 bg-white px-2.5 py-1.5 shadow-sm transition-colors hover:bg-gray-50"
+        >
+          <span className={`font-semibold text-gray-600 ${fontSize === "sm" ? "text-sm" : fontSize === "base" ? "text-base" : "text-lg"}`}>
+            A
+          </span>
+          <span className="ml-0.5 text-xs text-blue-500">
+            {fontSize === "sm" ? "" : fontSize === "base" ? "+" : "++"}
+          </span>
+        </button>
       </div>
 
       {loading && <PageSpinner />}
@@ -102,11 +118,11 @@ export default function HinosPage() {
                     className="flex items-center gap-4 px-4 py-3.5
                                transition-colors hover:bg-blue-50 active:bg-blue-100"
                   >
-                    <span className="w-10 shrink-0 text-right text-sm font-bold text-blue-600">
+                    <span className={`w-10 shrink-0 text-right font-bold text-blue-600 ${fontSize === "sm" ? "text-sm" : fontSize === "base" ? "text-lg" : "text-2xl"}`}>
                       {hino.numero}
                     </span>
 
-                    <span className="text-sm text-gray-800">{hino.titulo}</span>
+                    <span className={`text-gray-800 ${fontSize === "sm" ? "text-sm" : fontSize === "base" ? "text-lg" : "text-2xl"}`}>{hino.titulo}</span>
 
                     <svg
                       className="ml-auto h-4 w-4 shrink-0 text-gray-300"
