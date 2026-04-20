@@ -1,33 +1,38 @@
 # Gestor de Célula
 
-Aplicação web para gerenciamento de células, com controle de membros, reuniões e estudos bíblicos.
+Aplicação web para gerenciamento de células, com controle de membros, reuniões, estudos bíblicos e hinário.
 
 ## Tecnologias
 
-**Backend**
-- ASP.NET Core 8.0
-- Entity Framework Core + SQLite
-- Swagger (documentação da API)
+**Backend** (`app-backend`)
+- Node.js + Express
+- Prisma ORM
+- PostgreSQL (Supabase)
 
-**Frontend**
-- Next.js + TypeScript
+**Frontend** (`app-front`)
+- Next.js 14 + TypeScript
 - Tailwind CSS
 
 ## Estrutura do projeto
 
 ```
 gestor-celula/
-├── app-back/       # API REST em ASP.NET Core
-│   ├── Controllers/
-│   ├── Services/
-│   ├── Repositories/
-│   ├── Models/
-│   └── DTOs/
-└── app-front/      # Interface web em Next.js
+├── app-backend/        # API REST em Express + Prisma
+│   ├── prisma/
+│   │   └── schema.prisma
+│   └── src/
+│       ├── app.js
+│       └── routes/
+│           ├── member.js
+│           ├── meeting.js
+│           ├── study.js
+│           └── hino.js
+└── app-front/          # Interface web em Next.js
     └── src/
         ├── app/
         ├── components/
         ├── hooks/
+        ├── lib/
         ├── services/
         └── types/
 ```
@@ -37,11 +42,12 @@ gestor-celula/
 ### Backend
 
 ```bash
-cd app-back
-dotnet run
+cd app-backend
+npm install
+npm run dev
 ```
 
-A API estará disponível em `http://localhost:5000`. A documentação Swagger em `http://localhost:5000/swagger`.
+A API estará disponível em `http://localhost:3001`.
 
 ### Frontend
 
@@ -57,4 +63,7 @@ O frontend estará disponível em `http://localhost:3000`.
 
 - Cadastro e gerenciamento de membros
 - Controle de reuniões com sorteio de participantes
-- Gerenciamento de estudos bíblicos
+- Gerenciamento e leitura de estudos bíblicos
+- Hinário com busca, cache local e base própria (populada progressivamente)
+- Toggle de tamanho de fonte para acessibilidade
+- Cache local (stale-while-revalidate) em todas as rotas para carregamento instantâneo
