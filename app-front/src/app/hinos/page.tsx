@@ -93,14 +93,16 @@ export default function HinosPage() {
       )}
 
       {!loading && !erro && (
-        <input
-          type="text"
-          placeholder="Buscar por número ou título…"
-          value={busca}
-          onChange={(e) => setBusca(e.target.value)}
-          className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm
-                     focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-        />
+        <div className="sticky top-14 z-30 -mx-4 border-b border-gray-200 bg-gray-50/95 px-4 py-3 backdrop-blur-sm">
+          <input
+            type="text"
+            placeholder="Buscar por número ou título…"
+            value={busca}
+            onChange={(e) => setBusca(e.target.value)}
+            className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm
+                       focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+          />
+        </div>
       )}
 
       {!loading && !erro && (
