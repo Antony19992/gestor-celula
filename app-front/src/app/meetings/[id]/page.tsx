@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useMeeting } from "@/hooks/useMeeting";
+import { useFontSize } from "@/hooks/useFontSize";
 import { studyService } from "@/services/study";
 import { Study } from "@/types";
 import { StudyViewer } from "@/components/study/StudyViewer";
@@ -35,6 +36,7 @@ export default function MeetingPage({ params }: PageProps) {
     refetch,
   } = useMeeting(id);
 
+  const { fontSize, cycleFontSize } = useFontSize();
   const [activeTab, setActiveTab] = useState<Tab>("study");
   const [study, setStudy] = useState<Study | null>(null);
 
@@ -97,6 +99,18 @@ export default function MeetingPage({ params }: PageProps) {
             })}
           </p>
         </div>
+        <button
+          onClick={cycleFontSize}
+          title="Tamanho do texto"
+          className="flex-shrink-0 rounded-lg border border-gray-200 bg-white px-2.5 py-1.5 shadow-sm transition-colors hover:bg-gray-50"
+        >
+          <span className={`font-semibold text-gray-600 ${fontSize === "sm" ? "text-sm" : fontSize === "base" ? "text-base" : "text-lg"}`}>
+            A
+          </span>
+          <span className="ml-0.5 text-xs text-blue-500">
+            {fontSize === "sm" ? "" : fontSize === "base" ? "+" : "++"}
+          </span>
+        </button>
       </div>
 
       {study ? (
@@ -123,7 +137,7 @@ export default function MeetingPage({ params }: PageProps) {
             ))}
           </div>
 
-          {activeTab === "study" && <StudyViewer study={study} />}
+          {activeTab === "study" && <StudyViewer study={study} fontSize={fontSize} />}
 
           {activeTab === "questions" && (
             <div className="space-y-3">

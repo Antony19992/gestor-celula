@@ -1,11 +1,20 @@
 import { Study } from "@/types";
 import { Card } from "@/components/ui/Card";
+import { FontSize } from "@/hooks/useFontSize";
+
+const textClass: Record<FontSize, string> = {
+  sm: "text-sm",
+  base: "text-base",
+  lg: "text-lg",
+};
 
 interface StudyViewerProps {
   study: Study;
+  fontSize?: FontSize;
 }
 
-export function StudyViewer({ study }: StudyViewerProps) {
+export function StudyViewer({ study, fontSize = "sm" }: StudyViewerProps) {
+  const tx = textClass[fontSize];
   return (
     <div className="space-y-4">
       {/* Header */}
@@ -37,7 +46,7 @@ export function StudyViewer({ study }: StudyViewerProps) {
         <h2 className="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-400">
           Introdução
         </h2>
-        <p className="text-sm leading-relaxed text-gray-700">
+        <p className={`${tx} leading-relaxed text-gray-700`}>
           {study.introduction}
         </p>
       </Card>
@@ -47,7 +56,7 @@ export function StudyViewer({ study }: StudyViewerProps) {
         <h2 className="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-400">
           Explicação
         </h2>
-        <p className="whitespace-pre-line text-sm leading-relaxed text-gray-700">
+        <p className={`whitespace-pre-line ${tx} leading-relaxed text-gray-700`}>
           {study.explanation}
         </p>
       </Card>
@@ -64,7 +73,7 @@ export function StudyViewer({ study }: StudyViewerProps) {
                 <p className="mb-1 text-xs font-medium text-blue-600">
                   Individual
                 </p>
-                <p className="text-sm leading-relaxed text-gray-700">
+                <p className={`${tx} leading-relaxed text-gray-700`}>
                   {study.applicationIndividual}
                 </p>
               </div>
@@ -74,7 +83,7 @@ export function StudyViewer({ study }: StudyViewerProps) {
                 <p className="mb-1 text-xs font-medium text-violet-600">
                   Em grupo
                 </p>
-                <p className="text-sm leading-relaxed text-gray-700">
+                <p className={`${tx} leading-relaxed text-gray-700`}>
                   {study.applicationGroup}
                 </p>
               </div>
@@ -93,7 +102,7 @@ export function StudyViewer({ study }: StudyViewerProps) {
             {study.prayerTopics.map((topic, i) => (
               <li key={i} className="flex items-start gap-2">
                 <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-blue-400" />
-                <span className="text-sm text-gray-700">{topic}</span>
+                <span className={`${tx} text-gray-700`}>{topic}</span>
               </li>
             ))}
           </ul>
@@ -106,7 +115,7 @@ export function StudyViewer({ study }: StudyViewerProps) {
           <h2 className="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-400">
             Conclusão
           </h2>
-          <p className="text-sm leading-relaxed text-gray-700">
+          <p className={`${tx} leading-relaxed text-gray-700`}>
             {study.conclusion}
           </p>
         </Card>

@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import { Card } from "@/components/ui/Card";
 import { PageSpinner } from "@/components/ui/Spinner";
+import { useFontSize } from "@/hooks/useFontSize";
 
 interface Bloco {
   tipo: "estrofe" | "coro";
@@ -21,6 +22,7 @@ export default function HinoPage() {
   const [hino, setHino] = useState<HinoData | null>(null);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
+  const { fontSize, cycleFontSize } = useFontSize();
 
   useEffect(() => {
     fetch(`/api/hino/${numero}`)
@@ -46,7 +48,19 @@ export default function HinoPage() {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
         </Link>
-        <h1 className="text-xl font-bold text-gray-900">Hino {numero}</h1>
+        <h1 className="flex-1 text-xl font-bold text-gray-900">Hino {numero}</h1>
+        <button
+          onClick={cycleFontSize}
+          title="Tamanho do texto"
+          className="flex-shrink-0 rounded-lg border border-gray-200 bg-white px-2.5 py-1.5 shadow-sm transition-colors hover:bg-gray-50"
+        >
+          <span className={`font-semibold text-gray-600 ${fontSize === "sm" ? "text-sm" : fontSize === "base" ? "text-base" : "text-lg"}`}>
+            A
+          </span>
+          <span className="ml-0.5 text-xs text-blue-500">
+            {fontSize === "sm" ? "" : fontSize === "base" ? "+" : "++"}
+          </span>
+        </button>
       </div>
 
       {loading && <PageSpinner />}
@@ -60,7 +74,7 @@ export default function HinoPage() {
       {hino && !loading && (
         <Card>
           <h2 className="text-lg font-bold text-gray-900">{hino.titulo}</h2>
-          <div className="mt-4 space-y-4 text-sm leading-relaxed">
+          <div className={`mt-4 space-y-4 leading-relaxed ${fontSize === "sm" ? "text-sm" : fontSize === "base" ? "text-base" : "text-lg"}`}>
             {hino.blocos.map((bloco, i) => (
               <div key={i}>
                 {bloco.linhas.map((linha, j) => (
