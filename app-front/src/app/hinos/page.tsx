@@ -3,11 +3,15 @@
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { PageSpinner } from "@/components/ui/Spinner";
+import { localCache } from "@/lib/local-cache";
 
 interface Hino {
   numero: number;
   titulo: string;
 }
+
+const CACHE_KEY = "hinos";
+const CACHE_TTL = 60 * 60 * 1000; // 60 minutos (igual ao TTL do servidor)
 
 export default function HinosPage() {
   const [hinos, setHinos] = useState<Hino[]>([]);
@@ -16,14 +20,33 @@ export default function HinosPage() {
   const [busca, setBusca] = useState("");
 
   useEffect(() => {
+    const cached = localCache.get<Hino[]>(CACHE_KEY);
+
+    if (cached) {
+      setHinos(cached.data);
+      setLoading(false);
+      // Cache ainda fresco: não vai ao servidor
+      if (!localCache.isStale(cached, CACHE_TTL)) return;
+    }
+
+    // Primeira carga ou cache velho: busca no servidor
+    const silent = !!cached;
     fetch("/api/hinos")
-      .then((r) => (r.ok ? r.json() : r.json().then((d) => Promise.reject(d.error))))
-      .then(setHinos)
-      .catch((e) => setErro(typeof e === "string" ? e : "Erro ao carregar hinos."))
-      .finally(() => setLoading(false));
+      .then((r) =>
+        r.ok ? r.json() : r.json().then((d: { error: string }) => Promise.reject(d.error))
+      )
+      .then((data: Hino[]) => {
+        localCache.set(CACHE_KEY, data);
+        setHinos(data);
+      })
+      .catch((e) => {
+        if (!silent) setErro(typeof e === "string" ? e : "Erro ao carregar hinos.");
+      })
+      .finally(() => {
+        if (!silent) setLoading(false);
+      });
   }, []);
 
-  // Filtra por número ou título
   const filtrados = useMemo(() => {
     const q = busca.trim().toLowerCase();
     if (!q) return hinos;
@@ -36,7 +59,6 @@ export default function HinosPage() {
 
   return (
     <div className="space-y-4">
-      {/* Cabeçalho */}
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Hinos</h1>
         {!loading && !erro && (
@@ -46,17 +68,14 @@ export default function HinosPage() {
         )}
       </div>
 
-      {/* Loading */}
       {loading && <PageSpinner />}
 
-      {/* Erro */}
       {erro && !loading && (
         <div className="rounded-xl bg-white p-4 shadow-sm">
           <p className="text-sm text-red-600">{erro}</p>
         </div>
       )}
 
-      {/* Campo de busca */}
       {!loading && !erro && (
         <input
           type="text"
@@ -68,7 +87,6 @@ export default function HinosPage() {
         />
       )}
 
-      {/* Lista */}
       {!loading && !erro && (
         <div className="overflow-hidden rounded-xl bg-white shadow-sm">
           {filtrados.length === 0 ? (
@@ -84,15 +102,12 @@ export default function HinosPage() {
                     className="flex items-center gap-4 px-4 py-3.5
                                transition-colors hover:bg-blue-50 active:bg-blue-100"
                   >
-                    {/* Número */}
                     <span className="w-10 shrink-0 text-right text-sm font-bold text-blue-600">
                       {hino.numero}
                     </span>
 
-                    {/* Título */}
                     <span className="text-sm text-gray-800">{hino.titulo}</span>
 
-                    {/* Seta */}
                     <svg
                       className="ml-auto h-4 w-4 shrink-0 text-gray-300"
                       fill="none"

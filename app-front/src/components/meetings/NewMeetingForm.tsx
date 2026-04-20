@@ -6,6 +6,10 @@ import { meetingsService } from "@/services/meetings";
 import { studyService } from "@/services/study";
 import { Study, ApiError } from "@/types";
 import { Button } from "@/components/ui/Button";
+import { localCache } from "@/lib/local-cache";
+
+const STUDIES_CACHE_KEY = "studies";
+const STUDIES_TTL = 5 * 60 * 1000;
 
 export function NewMeetingForm() {
   const router = useRouter();
@@ -16,7 +20,18 @@ export function NewMeetingForm() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    studyService.getAll().then(setStudies).catch(console.error);
+    const cached = localCache.get<Study[]>(STUDIES_CACHE_KEY);
+    if (cached) {
+      setStudies(cached.data);
+      if (!localCache.isStale(cached, STUDIES_TTL)) return;
+    }
+    studyService
+      .getAll()
+      .then((data) => {
+        localCache.set(STUDIES_CACHE_KEY, data);
+        setStudies(data);
+      })
+      .catch(console.error);
   }, []);
 
   async function handleSubmit(e: FormEvent) {

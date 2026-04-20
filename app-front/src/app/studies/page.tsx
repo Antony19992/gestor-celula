@@ -8,6 +8,10 @@ import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { ErrorMessage } from "@/components/ui/ErrorMessage";
 import { Study, ApiError } from "@/types";
+import { localCache } from "@/lib/local-cache";
+
+const CACHE_KEY = "studies";
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutos
 
 export default function StudiesPage() {
   const [studies, setStudies] = useState<Study[]>([]);
@@ -17,21 +21,31 @@ export default function StudiesPage() {
   const [creating, setCreating] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
-  const fetchStudies = useCallback(async () => {
-    setLoading(true);
+  const fetchStudies = useCallback(async (silent = false) => {
+    if (!silent) setLoading(true);
     setError(null);
     try {
       const data = await studyService.getAll();
+      localCache.set(CACHE_KEY, data);
       setStudies(data);
     } catch (err) {
-      setError((err as ApiError).message);
+      if (!silent) setError((err as ApiError).message);
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchStudies();
+    const cached = localCache.get<Study[]>(CACHE_KEY);
+    if (cached) {
+      setStudies(cached.data);
+      setLoading(false);
+      if (localCache.isStale(cached, CACHE_TTL)) {
+        fetchStudies(true);
+      }
+    } else {
+      fetchStudies();
+    }
   }, [fetchStudies]);
 
   async function handleCreate(payload: CreateStudyPayload) {
@@ -39,7 +53,11 @@ export default function StudiesPage() {
     setFormError(null);
     try {
       const created = await studyService.create(payload);
-      setStudies((prev) => [...prev, created]);
+      setStudies((prev) => {
+        const updated = [...prev, created];
+        localCache.set(CACHE_KEY, updated);
+        return updated;
+      });
       setIsModalOpen(false);
     } catch (err) {
       setFormError((err as ApiError).message);
@@ -51,7 +69,11 @@ export default function StudiesPage() {
   async function handleDelete(id: number) {
     try {
       await studyService.delete(id);
-      setStudies((prev) => prev.filter((s) => s.id !== id));
+      setStudies((prev) => {
+        const updated = prev.filter((s) => s.id !== id);
+        localCache.set(CACHE_KEY, updated);
+        return updated;
+      });
     } catch (err) {
       setError((err as ApiError).message);
     }
@@ -59,7 +81,6 @@ export default function StudiesPage() {
 
   return (
     <div className="space-y-5">
-      {/* Header sempre visível */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Estudos</h1>
@@ -80,7 +101,6 @@ export default function StudiesPage() {
 
       {error && <ErrorMessage message={error} onRetry={fetchStudies} />}
 
-      {/* Loading inline */}
       {loading && (
         <div className="space-y-3">
           {[...Array(3)].map((_, i) => (
@@ -89,7 +109,6 @@ export default function StudiesPage() {
         </div>
       )}
 
-      {/* Vazio */}
       {!loading && !error && studies.length === 0 && (
         <div className="py-16 text-center">
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-blue-50 text-3xl">
@@ -105,7 +124,6 @@ export default function StudiesPage() {
         </div>
       )}
 
-      {/* Lista */}
       {!loading && studies.length > 0 && (
         <div className="space-y-3">
           {studies.map((study) => (

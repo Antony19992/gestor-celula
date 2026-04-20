@@ -9,6 +9,7 @@ app.use(express.json());
 app.use('/api/study', require('./routes/study'));
 app.use('/api/member', require('./routes/member'));
 app.use('/api/meeting', require('./routes/meeting'));
+app.use('/api/hino', require('./routes/hino'));
 
 app.get('/health', (_, res) => res.json({ status: 'ok' }));
 

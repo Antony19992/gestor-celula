@@ -16,12 +16,10 @@ function decodeEntities(text: string): string {
 }
 
 function parseHino(html: string): { titulo: string; blocos: Bloco[] } {
-  // Título: <h1 id="titulo-cantor">375 - Segurança</h1>
   const titleMatch = html.match(/<h1[^>]*id="titulo-cantor"[^>]*>([\s\S]*?)<\/h1>/i);
   const titleRaw = titleMatch ? decodeEntities(titleMatch[1].trim()) : "";
   const titulo = titleRaw.replace(/^\d+\s*[-–]\s*/, "").trim();
 
-  // Conteúdo: <div id="conteudoCantor">
   const contentMatch = html.match(/<div[^>]*id="conteudoCantor"[^>]*>([\s\S]*?)<\/div>/i);
   if (!contentMatch || !titulo) return { titulo, blocos: [] };
 
@@ -47,7 +45,6 @@ function parseHino(html: string): { titulo: string; blocos: Bloco[] } {
     const isCoro = /<b>/i.test(inner);
     const tipo: "estrofe" | "coro" = isCoro ? "coro" : "estrofe";
 
-    // Remove prefixo * do coro e numeração N. da estrofe
     const line = decodeEntities(text)
       .replace(/^\*\s*/, "")
       .replace(/^\d+\.\s*/, "")
@@ -64,6 +61,8 @@ function parseHino(html: string): { titulo: string; blocos: Bloco[] } {
   return { titulo, blocos };
 }
 
+const BACKEND_URL = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001");
+
 export async function GET(
   _req: NextRequest,
   { params }: { params: { numero: string } }
@@ -74,6 +73,18 @@ export async function GET(
     return NextResponse.json({ error: "Número inválido." }, { status: 400 });
   }
 
+  // 1. Tenta servir do banco próprio (instantâneo, sem depender do site externo)
+  try {
+    const dbRes = await fetch(`${BACKEND_URL}/api/hino/${numero}`, { cache: "no-store" });
+    if (dbRes.ok) {
+      const hino = await dbRes.json();
+      return NextResponse.json({ titulo: hino.titulo, blocos: hino.blocos });
+    }
+  } catch {
+    // Backend fora do ar — cai no scraping normalmente
+  }
+
+  // 2. Não está no banco: busca no site externo
   const url = `https://cristaonarede.com.br/hinarios/cantor/texto/?id=${numero}`;
 
   try {
@@ -92,6 +103,13 @@ export async function GET(
     if (!titulo) {
       return NextResponse.json({ error: "Hino não encontrado." }, { status: 404 });
     }
+
+    // 3. Persiste no banco em background — não bloqueia a resposta
+    fetch(`${BACKEND_URL}/api/hino`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ numero: parseInt(numero, 10), titulo, blocos }),
+    }).catch(() => {});
 
     return NextResponse.json({ titulo, blocos });
   } catch {

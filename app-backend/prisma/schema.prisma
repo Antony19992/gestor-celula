@@ -43,6 +43,14 @@ model Meeting {
   @@map("Meetings")
 }
 
+model Hino {
+  numero Int    @id @map("Numero")
+  titulo String @map("Titulo")
+  blocos Json   @map("Blocos")
+
+  @@map("Hinos")
+}
+
 model Participation {
   memberId      Int     @map("MemberId")
   meetingId     Int     @map("MeetingId")
