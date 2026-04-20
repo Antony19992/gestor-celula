@@ -18,6 +18,12 @@ app-front/dist/
 app-front/build/
 app-front/.next/
 
+# PWA generated files (next-pwa)
+app-front/public/sw.js
+app-front/public/sw.js.map
+app-front/public/workbox-*.js
+app-front/public/workbox-*.js.map
+
 # IDE / OS
 .vscode/
 .idea/
