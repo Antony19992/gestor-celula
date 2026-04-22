@@ -27,7 +27,7 @@ export default function HomePage() {
           <h1 className="text-2xl font-bold text-gray-900">Reuniões</h1>
           {!loading && (
             <p className="mt-0.5 text-sm text-gray-500">
-              {meetings.length} reunião{meetings.length !== 1 ? "ões" : ""} no total
+              {meetings.length} {meetings.length !== 1 ? "reuniões" : "reunião"} no total
             </p>
           )}
         </div>
