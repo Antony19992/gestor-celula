@@ -11,8 +11,7 @@ import { ErrorMessage } from "@/components/ui/ErrorMessage";
 import { CreateMemberPayload } from "@/types";
 
 export default function MembersPage() {
-  const { members, loading, error, createMember, deleteMember, refetch } =
-    useMembers();
+  const { members, loading, error, createMember, deleteMember, refetch } = useMembers();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [creating, setCreating] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
@@ -31,14 +30,12 @@ export default function MembersPage() {
 
   return (
     <div className="space-y-5">
-      {/* Header sempre visível */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Membros</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Membros</h1>
           {!loading && (
-            <p className="mt-0.5 text-sm text-gray-500">
-              {members.length} membro{members.length !== 1 ? "s" : ""} cadastrado
-              {members.length !== 1 ? "s" : ""}
+            <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">
+              {members.length} membro{members.length !== 1 ? "s" : ""} cadastrado{members.length !== 1 ? "s" : ""}
             </p>
           )}
         </div>
@@ -58,8 +55,8 @@ export default function MembersPage() {
             <div className="space-y-3 py-2">
               {[...Array(4)].map((_, i) => (
                 <div key={i} className="flex items-center gap-3">
-                  <div className="h-9 w-9 animate-pulse rounded-full bg-gray-100" />
-                  <div className="h-4 flex-1 animate-pulse rounded bg-gray-100" />
+                  <div className="h-9 w-9 animate-pulse rounded-full bg-gray-100 dark:bg-gray-800" />
+                  <div className="h-4 flex-1 animate-pulse rounded bg-gray-100 dark:bg-gray-800" />
                 </div>
               ))}
             </div>
@@ -69,19 +66,8 @@ export default function MembersPage() {
         </div>
       </Card>
 
-      <Modal
-        open={isModalOpen}
-        onClose={() => {
-          setIsModalOpen(false);
-          setFormError(null);
-        }}
-        title="Novo membro"
-      >
-        <MemberForm
-          onSubmit={handleCreate}
-          loading={creating}
-          error={formError}
-        />
+      <Modal open={isModalOpen} onClose={() => { setIsModalOpen(false); setFormError(null); }} title="Novo membro">
+        <MemberForm onSubmit={handleCreate} loading={creating} error={formError} />
       </Modal>
     </div>
   );

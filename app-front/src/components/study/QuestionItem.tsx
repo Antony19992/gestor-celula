@@ -52,30 +52,20 @@ export function QuestionItem({
       }
     >
       <div className="flex items-start gap-3">
-        <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-bold text-blue-700">
+        <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-bold text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">
           {order}
         </span>
-        <p className={`flex-1 pt-0.5 leading-relaxed text-gray-800 ${textClass[fontSize]}`}>
+        <p className={`flex-1 pt-0.5 leading-relaxed text-gray-800 dark:text-gray-200 ${textClass[fontSize]}`}>
           {text}
         </p>
       </div>
 
       {answered ? (
-        <div className="mt-3 flex items-center gap-1.5 rounded-lg bg-green-50 px-3 py-2">
-          <svg
-            className="h-4 w-4 text-green-600"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M5 13l4 4L19 7"
-            />
+        <div className="mt-3 flex items-center gap-1.5 rounded-lg bg-green-50 px-3 py-2 dark:bg-green-900/20">
+          <svg className="h-4 w-4 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
-          <span className="text-xs font-medium text-green-700">Respondida</span>
+          <span className="text-xs font-medium text-green-700 dark:text-green-400">Respondida</span>
         </div>
       ) : isActive && drawResult ? (
         <div className="mt-4">
@@ -95,18 +85,9 @@ export function QuestionItem({
             loading={drawing && isActive}
             disabled={drawing && !isActive}
           >
-            <svg
-              className="h-4 w-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-              />
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
             Sortear pessoa
           </Button>

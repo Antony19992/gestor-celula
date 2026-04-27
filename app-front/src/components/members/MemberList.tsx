@@ -19,7 +19,7 @@ function getInitials(name: string) {
 export function MemberList({ members, onDelete }: MemberListProps) {
   if (members.length === 0) {
     return (
-      <div className="py-12 text-center text-gray-400">
+      <div className="py-12 text-center text-gray-400 dark:text-gray-500">
         <svg
           className="mx-auto mb-3 h-12 w-12 opacity-40"
           fill="none"
@@ -39,18 +39,18 @@ export function MemberList({ members, onDelete }: MemberListProps) {
   }
 
   return (
-    <ul className="divide-y divide-gray-100">
+    <ul className="divide-y divide-gray-100 dark:divide-gray-800">
       {members.map((member) => (
         <li
           key={member.id}
           className="flex items-center gap-3 py-3 first:pt-0 last:pb-0"
         >
-          <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-semibold text-blue-700">
+          <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-semibold text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">
             {getInitials(member.name)}
           </div>
 
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-medium text-gray-900">
+            <p className="truncate text-sm font-medium text-gray-900 dark:text-white">
               {member.name}
             </p>
           </div>
@@ -58,7 +58,7 @@ export function MemberList({ members, onDelete }: MemberListProps) {
           <button
             onClick={() => onDelete(member.id)}
             title="Remover"
-            className="rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500"
+            className="rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-900/20 dark:hover:text-red-400"
           >
             <svg
               className="h-4 w-4"

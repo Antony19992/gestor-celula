@@ -21,15 +21,15 @@ export function MeetingCard({ meeting }: MeetingCardProps) {
       <Card className="cursor-pointer transition-all hover:border-blue-300 hover:shadow-md group mt-3">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0 flex-1">
-            <span className="truncate text-lg font-semibold text-gray-900 transition-colors group-hover:text-blue-600">
+            <span className="truncate text-lg font-semibold text-gray-900 transition-colors group-hover:text-blue-600 dark:text-white">
               {meeting.studyTitle || "Reunião"}
             </span>
-            <p className="mt-1 text-sm capitalize text-gray-500">
+            <p className="mt-1 text-sm capitalize text-gray-500 dark:text-gray-400">
               {formatDate(meeting.date)}
             </p>
           </div>
           <svg
-            className="h-5 w-5 flex-shrink-0 text-gray-300 transition-colors group-hover:text-blue-400"
+            className="h-5 w-5 flex-shrink-0 text-gray-300 transition-colors group-hover:text-blue-400 dark:text-gray-600"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"

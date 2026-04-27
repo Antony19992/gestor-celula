@@ -11,6 +11,9 @@ import { localCache } from "@/lib/local-cache";
 const STUDIES_CACHE_KEY = "studies";
 const STUDIES_TTL = 5 * 60 * 1000;
 
+const inputCls = "w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:placeholder:text-gray-500";
+const labelCls = "mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300";
+
 export function NewMeetingForm() {
   const router = useRouter();
   const [date, setDate] = useState(() => new Date().toISOString().slice(0, 16));
@@ -57,10 +60,7 @@ export function NewMeetingForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       <div>
-        <label
-          htmlFor="date"
-          className="mb-1.5 block text-sm font-medium text-gray-700"
-        >
+        <label htmlFor="date" className={labelCls}>
           Data e hora
         </label>
         <input
@@ -69,15 +69,12 @@ export function NewMeetingForm() {
           required
           value={date}
           onChange={(e) => setDate(e.target.value)}
-          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          className={inputCls}
         />
       </div>
 
       <div>
-        <label
-          htmlFor="study"
-          className="mb-1.5 block text-sm font-medium text-gray-700"
-        >
+        <label htmlFor="study" className={labelCls}>
           Estudo <span className="text-red-500">*</span>
         </label>
         <select
@@ -85,7 +82,7 @@ export function NewMeetingForm() {
           required
           value={studyId}
           onChange={(e) => setStudyId(e.target.value)}
-          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          className={inputCls}
         >
           <option value="">Selecione um estudo</option>
           {studies.map((s) => (
@@ -95,14 +92,14 @@ export function NewMeetingForm() {
           ))}
         </select>
         {studies.length === 0 && (
-          <p className="mt-1 text-xs text-gray-400">
+          <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">
             Nenhum estudo cadastrado ainda.
           </p>
         )}
       </div>
 
       {error && (
-        <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">
+        <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600 dark:bg-red-900/20 dark:text-red-400">
           {error}
         </p>
       )}

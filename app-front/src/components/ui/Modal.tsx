@@ -48,18 +48,18 @@ export function Modal({
       {/* Container com altura máxima e scroll */}
       <div
         className={clsx(
-          "relative flex w-full flex-col rounded-t-2xl bg-white shadow-xl sm:rounded-2xl",
+          "relative flex w-full flex-col rounded-t-2xl bg-white shadow-xl sm:rounded-2xl dark:bg-gray-900",
           "max-h-[92dvh] sm:max-h-[90vh]",
           sizeClasses[size]
         )}
       >
         {/* Header fixo */}
         {title && (
-          <div className="flex flex-shrink-0 items-center justify-between border-b border-gray-100 px-6 py-4">
-            <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
+          <div className="flex flex-shrink-0 items-center justify-between border-b border-gray-100 px-6 py-4 dark:border-gray-800">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">{title}</h2>
             <button
               onClick={onClose}
-              className="rounded-lg p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
+              className="rounded-lg p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-300"
             >
               <svg
                 className="h-5 w-5"

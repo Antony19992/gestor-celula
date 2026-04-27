@@ -12,7 +12,7 @@ import { Study, ApiError } from "@/types";
 import { localCache } from "@/lib/local-cache";
 
 const CACHE_KEY = "studies";
-const CACHE_TTL = 5 * 60 * 1000; // 5 minutos
+const CACHE_TTL = 5 * 60 * 1000;
 
 export default function StudiesPage() {
   const [studies, setStudies] = useState<Study[]>([]);
@@ -41,9 +41,7 @@ export default function StudiesPage() {
     if (cached) {
       setStudies(cached.data);
       setLoading(false);
-      if (localCache.isStale(cached, CACHE_TTL)) {
-        fetchStudies(true);
-      }
+      if (localCache.isStale(cached, CACHE_TTL)) fetchStudies(true);
     } else {
       fetchStudies();
     }
@@ -84,11 +82,10 @@ export default function StudiesPage() {
     <div className="space-y-5">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Estudos</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Estudos</h1>
           {!loading && (
-            <p className="mt-0.5 text-sm text-gray-500">
-              {studies.length} estudo{studies.length !== 1 ? "s" : ""} cadastrado
-              {studies.length !== 1 ? "s" : ""}
+            <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">
+              {studies.length} estudo{studies.length !== 1 ? "s" : ""} cadastrado{studies.length !== 1 ? "s" : ""}
             </p>
           )}
         </div>
@@ -105,18 +102,18 @@ export default function StudiesPage() {
       {loading && (
         <div className="space-y-3">
           {[...Array(3)].map((_, i) => (
-            <div key={i} className="h-20 animate-pulse rounded-xl bg-gray-100" />
+            <div key={i} className="h-20 animate-pulse rounded-xl bg-gray-100 dark:bg-gray-800" />
           ))}
         </div>
       )}
 
       {!loading && !error && studies.length === 0 && (
         <div className="py-16 text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-blue-50 text-3xl">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-blue-50 text-3xl dark:bg-blue-900/20">
             📖
           </div>
-          <h2 className="text-lg font-semibold text-gray-900">Nenhum estudo</h2>
-          <p className="mt-1 text-sm text-gray-500">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Nenhum estudo</h2>
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
             Cadastre um estudo para usar nas reuniões.
           </p>
           <div className="mt-6">
@@ -130,10 +127,10 @@ export default function StudiesPage() {
           {studies.map((study) => (
             <Card key={study.id} className="flex items-start justify-between gap-3">
               <Link href={`/studies/${study.id}`} className="min-w-0 flex-1">
-                <h3 className="truncate font-semibold text-gray-900">{study.title}</h3>
-                <p className="mt-0.5 text-sm italic text-gray-500">{study.verse}</p>
+                <h3 className="truncate font-semibold text-gray-900 dark:text-white">{study.title}</h3>
+                <p className="mt-0.5 text-sm italic text-gray-500 dark:text-gray-400">{study.verse}</p>
                 {study.questions.length > 0 && (
-                  <p className="mt-2 text-xs text-gray-400">
+                  <p className="mt-2 text-xs text-gray-400 dark:text-gray-500">
                     {study.questions.length} pergunta{study.questions.length !== 1 ? "s" : ""}
                   </p>
                 )}
@@ -141,7 +138,7 @@ export default function StudiesPage() {
               <button
                 onClick={() => handleDelete(study.id)}
                 title="Remover"
-                className="rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500"
+                className="rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-900/20 dark:hover:text-red-400"
               >
                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -152,14 +149,7 @@ export default function StudiesPage() {
         </div>
       )}
 
-      <Modal
-        open={isModalOpen}
-        onClose={() => {
-          setIsModalOpen(false);
-          setFormError(null);
-        }}
-        title="Novo estudo"
-      >
+      <Modal open={isModalOpen} onClose={() => { setIsModalOpen(false); setFormError(null); }} title="Novo estudo">
         <StudyForm onSubmit={handleCreate} loading={creating} error={formError} />
       </Modal>
     </div>
