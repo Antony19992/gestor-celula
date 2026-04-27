@@ -68,6 +68,12 @@ export default function RootLayout({
                 >
                   Hinos
                 </Link>
+                <Link
+                  href="/biblia"
+                  className="rounded-lg px-3 py-1.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900"
+                >
+                  Bíblia
+                </Link>
               </nav>
             </div>
           </header>
@@ -111,6 +117,14 @@ export default function RootLayout({
                     d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
                 </svg>
                 <span className="text-[11px] font-medium">Hinos</span>
+              </Link>
+
+              <Link href="/biblia" className="flex flex-1 flex-col items-center gap-0.5 py-3 text-gray-500 transition-colors hover:text-blue-600 active:text-blue-600">
+                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8}
+                    d="M12 3v18M5 9h14" />
+                </svg>
+                <span className="text-[11px] font-medium">Bíblia</span>
               </Link>
 
             </div>
