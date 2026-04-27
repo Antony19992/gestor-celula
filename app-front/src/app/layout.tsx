@@ -122,7 +122,7 @@ export default function RootLayout({
               <Link href="/biblia" className="flex flex-1 flex-col items-center gap-0.5 py-3 text-gray-500 transition-colors hover:text-blue-600 active:text-blue-600">
                 <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8}
-                    d="M12 3v18M5 9h14" />
+                    d="M3 5a2 2 0 012-2h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM7 3v18" />
                 </svg>
                 <span className="text-[11px] font-medium">Bíblia</span>
               </Link>
