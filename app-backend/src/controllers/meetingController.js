@@ -32,8 +32,9 @@ async function remove(req, res) {
 async function drawMember(req, res) {
   try {
     const meetingId = Number(req.params.id);
+    const { questionText, questionOrder } = req.body ?? {};
     const result = await drawService.drawMember(meetingId);
-    sse.broadcast('draw', { ...result, meetingId });
+    sse.broadcast('draw', { ...result, meetingId, questionText, questionOrder });
     res.json(result);
   } catch (err) {
     res.status(err.status ?? 500).json({ error: err.message });

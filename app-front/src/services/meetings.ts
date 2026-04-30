@@ -17,8 +17,8 @@ export const meetingsService = {
     return data;
   },
 
-  async drawMember(id: number): Promise<DrawResult> {
-    const { data } = await api.post<DrawResult>(`/meeting/${id}/draw-member`);
+  async drawMember(id: number, questionText?: string, questionOrder?: number): Promise<DrawResult> {
+    const { data } = await api.post<DrawResult>(`/meeting/${id}/draw-member`, { questionText, questionOrder });
     return data;
   },
 };

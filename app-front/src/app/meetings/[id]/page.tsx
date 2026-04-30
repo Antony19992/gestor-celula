@@ -38,7 +38,7 @@ export default function MeetingPage({ params }: PageProps) {
 
   async function handleDraw(idx: number) {
     setActiveQuestionIdx(idx);
-    await drawMember();
+    await drawMember(questions[idx], idx + 1);
   }
 
   function handleClearDraw() {

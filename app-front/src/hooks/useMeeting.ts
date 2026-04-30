@@ -81,13 +81,12 @@ export function useMeeting(id: number) {
     }
   }, [id, fetchMeeting]);
 
-  const drawMember = useCallback(async () => {
+  const drawMember = useCallback(async (questionText?: string, questionOrder?: number) => {
     setDrawing(true);
     setDrawResult(null);
     try {
-      const result = await meetingsService.drawMember(id);
+      const result = await meetingsService.drawMember(id, questionText, questionOrder);
       setDrawResult(result);
-      // Invalida cache da reunião pois pode ter nova participação
       localCache.delete(meetingKey(id));
     } catch (err) {
       setError((err as ApiError).message);

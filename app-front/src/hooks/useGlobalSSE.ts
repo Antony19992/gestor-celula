@@ -9,6 +9,8 @@ export interface DrawEvent {
   memberName: string;
   timesSelectedInThisMeeting: number;
   meetingId: number;
+  questionText?: string;
+  questionOrder?: number;
 }
 
 export function useGlobalSSE(onDraw: (event: DrawEvent) => void) {
