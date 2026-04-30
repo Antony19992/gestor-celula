@@ -20,13 +20,19 @@ export function useGlobalSSE(onDraw: (event: DrawEvent) => void) {
     let reconnectTimer: ReturnType<typeof setTimeout>;
 
     function connect() {
-      es = new EventSource(`${API_URL}/api/events`);
+      const url = `${API_URL}/api/events`;
+      console.log("[SSE] conectando em", url);
+      es = new EventSource(url);
+
+      es.onopen = () => console.log("[SSE] conectado");
 
       es.addEventListener("draw", (e) => {
+        console.log("[SSE] evento draw recebido:", e.data);
         onDrawRef.current(JSON.parse(e.data) as DrawEvent);
       });
 
-      es.onerror = () => {
+      es.onerror = (err) => {
+        console.error("[SSE] erro, reconectando em 5s", err);
         es.close();
         reconnectTimer = setTimeout(connect, 5000);
       };
