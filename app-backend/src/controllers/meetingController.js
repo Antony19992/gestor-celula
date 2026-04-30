@@ -1,5 +1,6 @@
 const service = require('../services/meetingService');
 const drawService = require('../services/drawService');
+const sse = require('../lib/sse');
 
 async function getAll(req, res) {
   res.json(await service.getAll());
@@ -30,7 +31,9 @@ async function remove(req, res) {
 
 async function drawMember(req, res) {
   try {
-    const result = await drawService.drawMember(Number(req.params.id));
+    const meetingId = Number(req.params.id);
+    const result = await drawService.drawMember(meetingId);
+    sse.broadcast('draw', { ...result, meetingId });
     res.json(result);
   } catch (err) {
     res.status(err.status ?? 500).json({ error: err.message });

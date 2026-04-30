@@ -11,6 +11,7 @@ app.use('/api/member', require('./routes/member'));
 app.use('/api/meeting', require('./routes/meeting'));
 app.use('/api/hino', require('./routes/hino'));
 
+app.get('/api/events', require('./controllers/eventsController').subscribe);
 app.get('/health', (_, res) => res.json({ status: 'ok' }));
 
 // Tratamento de erros global

@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import Link from "next/link";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import { DrawNotificationProvider } from "@/components/DrawNotificationProvider";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -132,6 +133,7 @@ export default function RootLayout({
           </nav>
 
         </div>
+        <DrawNotificationProvider />
       </body>
     </html>
   );
